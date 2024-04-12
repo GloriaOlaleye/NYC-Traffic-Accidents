@@ -1,0 +1,200 @@
+SELECT *
+FROM [AlexAnalyst].[dbo].[NYC_Collisions]
+
+--This query returned a total of 238421 rows
+
+SELECT count (distinct Collision_ID) AS Total_number_of_accidents
+FROM [AlexAnalyst].[dbo].[NYC_Collisions]
+
+select len(Collision_ID), count (distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by len(Collision_ID)
+
+--All the Collision are uniques 
+
+select Borough, count (distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Borough
+order by Total_number_of_accidents Desc
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Borough is null
+
+--7197 rows have no borough, these null values will be deleted in data cleaning
+
+select Street_Name, count (distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Street_Name
+order by Total_number_of_accidents Desc
+
+select Cross_Street, count (distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Cross_Street
+order by Total_number_of_accidents Desc
+
+
+--select *
+--from [AlexAnalyst].[dbo].[NYC_Collisions]
+--where Street_Name is null or Cross_Street is null
+
+--the null values in street name and cross street are irrelevant to the goal of this analysis
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Longitude is null or Latitude is null
+
+--22324 rows are without longitude or latitude
+
+select Contributing_Factor, count(distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Contributing_Factor
+order by Total_number_of_accidents Desc
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Contributing_Factor is null
+
+--1287 rows without contributing factors
+
+select Vehicle_Type, count(distinct Collision_ID) AS Total_number_of_accidents
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Vehicle_Type
+order by Total_number_of_accidents Desc
+
+SELECT *
+FROM [AlexAnalyst].[dbo].[NYC_Collisions]
+
+
+select Vehicle_Type, sum(Persons_Killed) as Total_Deaths
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Vehicle_Type
+order by Total_Deaths Desc
+
+
+
+select Vehicle_Type, sum(Persons_Injured) as Total_Injuries
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+group by Vehicle_Type
+order by Total_Injuries Desc
+
+
+
+------DATA CLEANING-----
+
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Borough is null
+
+
+ delete from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Borough is null
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Longitude is null or Latitude is null
+
+Delete from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Longitude is null or Latitude is null
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Contributing_Factor is null
+
+Delete from [AlexAnalyst].[dbo].[NYC_Collisions]
+where Contributing_Factor is null
+
+
+--i removed the duplicates in the data
+
+With RowNumCTE as(
+Select *,
+	ROW_NUMBER() Over (
+	Partition by Date
+				,Time
+				,Borough
+				,Street_Name
+				,Cross_Street
+				,Latitude
+				,Longitude
+				,Contributing_Factor
+				,Vehicle_Type
+				,Persons_Injured
+				,Persons_Killed
+				,Pedestrians_Injured
+				,Pedestrians_Killed
+				,Cyclists_Injured
+				,Cyclists_Killed
+				,Motorists_Injured
+				,Motorists_Killed
+				 Order by
+					Collision_ID
+					) row_num
+
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+)
+Delete
+From RowNumCTE
+Where row_num > 1
+
+
+select *
+from [AlexAnalyst].[dbo].[NYC_Collisions]
+
+
+
+Drop Table If exists NYC_Collisins_Cleaned
+Create Table NYC_Collisins_Cleaned
+(
+Collision_ID int,
+Date date,
+Time time(7),
+Months nvarchar(50),
+Year_Value  int,
+Borough nvarchar(50),
+Street_Name nvarchar(50),
+Cross_Street nvarchar(50),
+Latitude float,
+Longitude float,
+Contributing_Factor nvarchar(100),
+Vehicle_Type nvarchar(50),
+Persons_Injured tinyint,
+Persons_Killed tinyint,
+Pedestrians_Injured tinyint,
+Pedestrians_Killed tinyint,
+Cyclists_Injured tinyint,
+Cyclists_Killed tinyint,
+Motorists_Injured tinyint,
+Motorists_Killed tinyint
+)
+Insert into NYC_Collisins_Cleaned
+Select Collision_ID,
+	   Date,
+   	   Time,
+	   DATENAME(Month, Date) AS Month,
+       YEAR(Date) AS year_value,
+	   Borough,
+	   Street_Name,
+	   Cross_Street,
+	   Latitude,
+	   Longitude,
+	   Contributing_Factor,
+	   Vehicle_Type,
+	   Persons_Injured,
+	   Persons_Killed,
+	   Pedestrians_Injured,
+	   Pedestrians_Killed,
+	   Cyclists_Injured,
+	   Cyclists_Killed,
+	   Motorists_Injured,
+	   Motorists_Killed
+	   From [AlexAnalyst].[dbo].[NYC_Collisions]
+
+select *
+from NYC_Collisins_Cleaned
+
+
+
+Select *
+From [AlexAnalyst].[dbo].[NYC_Collisins_Cleaned]
