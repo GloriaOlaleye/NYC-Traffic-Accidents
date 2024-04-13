@@ -18,4 +18,17 @@ Data source: <a href="https://maven-datasets.s3.amazonaws.com/NYC+Traffic+Accide
 
 4. What was the most common contributing factor for the accidents reported? What about for fatal accidents specifically?
 
+## Data Exploration and Cleaning
 
+I explored and cleaned the NYC Traffic Accidents data using SQL Server. I chose this tool because of the volume of the data and the ease of writing queries. The queries used in the exploration and cleaning of the data can be found <a href="https://github.com/GloriaOlaleye/NYC-Traffic-Accidents/blob/main/NYC%20Data%20Cleaning">here.</a>
+
+## Observations
+There were 238421 rows in the dataset. All of the rows are disctinct. On further exploration, 7197 rows of data are without borough: these rows were removed during cleaning. The null values returned for the cross street column were irrelevant to the goal of this analysis.
+22324 rows of data have neither longitude nor latitude. These were also removed during data cleaning.
+
+1287 rows of data without contibuting factors were also removed from the dataset.
+Duplicate rows were also checked and removed. After cleaning, 214798 rows of clean data was remaining.
+
+## Analyze and Share
+The data was loaded and tranformed further in Microsoft Power BI before visualizing with the same tool.
+After analysis, the following insights were observed from the visualized data and they could be used in making decisions that would reduced road traffic accident in all the Boroughs in New York City.
